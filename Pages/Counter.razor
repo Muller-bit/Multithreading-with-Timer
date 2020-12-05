@@ -1,0 +1,52 @@
+﻿@page "/counter"
+@using System.Timers
+@using System.Collections.Generic
+@using Data
+<h1>Counter</h1>
+<p>Current count: @currentCount</p>
+<svg  width  = "200" height = "200 ">
+    @foreach( var ball in balls ){
+      <circle cx = "@ball.x" cy = "@ball.y" r = "5" fill ="@ball.color"/>
+    }
+</svg><br>
+    <button class="btn btn-primary" @onclick="StartAnimation">Start</button>
+    <button class="btn btn-primary" @onclick="StopAnimation">Stop</button>
+@code {
+    private static int currentCount = 0;
+    List<MovingBall> balls = new List<MovingBall>() ;
+        static Timer mytimer  = new Timer();
+        private void  init_balls(){
+            Random random = new Random(230);
+            MovingBall p;
+            for( int i = 0; i <50 ; i++){
+                int x = random.Next(10,190);
+                int y = random.Next(10,190);
+                p = new MovingBall(x,y);
+                p.color= " #ABE280";
+                p.setLimitX(10,190);
+                p.setLimitY(10,190);
+                x=random.Next(0,4);
+                y=random.Next(0,4);
+                p.setVelocity(x,y);
+                balls.Add(p);
+            }
+        }
+        
+         private void StartAnimation()
+        {
+                init_balls();
+                mytimer.Interval = 50;
+                mytimer.Elapsed += Animation;   
+                mytimer.Start();
+                currentCount++;
+        }
+        private void StopAnimation(){
+            mytimer.Stop();
+        }
+        private void Animation(object sender ,EventArgs e)
+        {
+          currentCount++;
+          foreach( var ball in balls) ball.next();
+          InvokeAsync(StateHasChanged);
+        }
+}
